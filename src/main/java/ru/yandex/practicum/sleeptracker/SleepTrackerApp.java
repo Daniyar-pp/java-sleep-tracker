@@ -57,7 +57,7 @@ public class SleepTrackerApp {
 
         } catch (FileNotFoundException e) {
             System.out.println("Ошибка: файл '" + fileName + "' не найден!");
-            System.out.println("Положите файл в папку: " + System.getProperty("user.dir"));
+            System.out.println("Положите файл в папку: ");
         }
 
         return sessions;
