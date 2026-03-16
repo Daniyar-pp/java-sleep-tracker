@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SleepTrackerApp {
 
@@ -64,23 +65,20 @@ public class SleepTrackerApp {
     }
 
     public List<SleepAnalysisResult> runAllAnalyses(List<SleepingSession> sessions) {
-        List<SleepAnalysisResult> results = new ArrayList<>();
-
-        for (Object func : functions) {
-
-            if (func instanceof TotalSessionsFunction) {
-                TotalSessionsFunction f = (TotalSessionsFunction) func;
-                results.add(f.calculate(sessions));
-            } else if (func instanceof SleeplessNightsFunction) {
-                SleeplessNightsFunction f = (SleeplessNightsFunction) func;
-                results.add(f.calculate(sessions));
-            } else if (func instanceof ChronotypeFunction) {
-                ChronotypeFunction f = (ChronotypeFunction) func;
-                results.add(f.calculate(sessions));
-            }
-        }
-
-        return results;
+        return functions.stream()
+                .map(func -> {
+                    if (func instanceof TotalSessionsFunction) {
+                        return ((TotalSessionsFunction) func).calculate(sessions);
+                    } else if (func instanceof SleeplessNightsFunction) {
+                        return ((SleeplessNightsFunction) func).calculate(sessions);
+                    } else if (func instanceof ChronotypeFunction) {
+                        return ((ChronotypeFunction) func).calculate(sessions);
+                    } else {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     public static void main(String[] args) {
@@ -102,16 +100,15 @@ public class SleepTrackerApp {
 
         System.out.println("Загружено сессий: " + sessions.size());
         System.out.println("\nСодержимое файла:");
-        for (SleepingSession session : sessions) {
-            System.out.println(session);
-        }
+
+        sessions.stream()
+                .forEach(System.out::println);
 
         System.out.println("\n=== РЕЗУЛЬТАТЫ АНАЛИЗА ===");
 
         List<SleepAnalysisResult> results = app.runAllAnalyses(sessions);
 
-        for (SleepAnalysisResult result : results) {
-            result.print();
-        }
+        results.stream()
+                .forEach(SleepAnalysisResult::print);
     }
 }
